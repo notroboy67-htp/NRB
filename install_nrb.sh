@@ -2,31 +2,51 @@
 
 set -e
 
+echo "======================================"
+echo "        NRB PANEL INSTALLER"
+echo "======================================"
+
 cd /root
 
-rm -rf NRB
+echo "[1/8] Installing dependencies..."
+apt update
+apt install -y git unzip python3 python3-pip python3-venv
 
-git clone https://github.com/notroboy67-htp/NRB.git NRB
+echo "[2/8] Removing old NRB..."
+rm -rf /root/NRB
+
+echo "[3/8] Cloning NRB..."
+git clone https://github.com/notroboy67-htp/NRB.git /root/NRB
 
 cd /root/NRB
 
-if [ -f "NRB.zip" ]; then
-    unzip -o NRB.zip
+echo "[4/8] Extracting NRB.zip..."
+
+if [ ! -f "NRB.zip" ]; then
+    echo "ERROR: NRB.zip not found!"
+    exit 1
 fi
 
-echo "Searching for requirements.txt..."
+mkdir -p /root/NRB_EXTRACTED
+rm -rf /root/NRB_EXTRACTED/*
+unzip -o NRB.zip -d /root/NRB_EXTRACTED
 
-REQ=$(find /root/NRB -type f -name "requirements.txt" | head -n 1)
+echo "[5/8] Finding project files..."
+
+REQ=$(find /root/NRB_EXTRACTED -type f -name "requirements.txt" -print -quit)
 
 if [ -z "$REQ" ]; then
-    echo "ERROR: requirements.txt was not found."
-    find /root/NRB -maxdepth 3 -type f | sort
+    echo "ERROR: requirements.txt was not found inside NRB.zip"
+    find /root/NRB_EXTRACTED -maxdepth 4 -type f | sort
     exit 1
 fi
 
 PROJECT_DIR=$(dirname "$REQ")
 
-echo "Project directory: $PROJECT_DIR"
+echo "Project directory:"
+echo "$PROJECT_DIR"
+
+echo "[6/8] Creating virtual environment..."
 
 cd "$PROJECT_DIR"
 
@@ -34,15 +54,27 @@ python3 -m venv venv
 
 source venv/bin/activate
 
-python3 -m pip install --upgrade pip
+echo "[7/8] Installing requirements..."
 
+python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 
-if [ -f "start.sh" ]; then
-    chmod +x start.sh
-    ./start.sh
-else
-    echo "ERROR: start.sh was not found in $PROJECT_DIR"
-    find /root/NRB -type f -name "start.sh"
+echo "[8/8] Starting NRB..."
+
+START=$(find "$PROJECT_DIR" -maxdepth 2 -type f -name "start.sh" -print -quit)
+
+if [ -z "$START" ]; then
+    echo "ERROR: start.sh was not found!"
+    find /root/NRB_EXTRACTED -type f -name "start.sh"
     exit 1
 fi
+
+chmod +x "$START"
+
+cd "$(dirname "$START")"
+
+echo "======================================"
+echo "          STARTING NRB PANEL"
+echo "======================================"
+
+./start.sh
