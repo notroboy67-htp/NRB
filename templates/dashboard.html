@@ -1,375 +1,1262 @@
 {% extends "base.html" %}
 
 {% block title %}Dashboard - {{ panel_name }}{% endblock %}
-
 {% block header_title %}Dashboard{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumb">
     <a href="{{ url_for('dashboard') }}" class="breadcrumb-item">Home</a>
-    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+    <span class="breadcrumb-separator">
+        <i class="fas fa-chevron-right"></i>
+    </span>
     <span class="breadcrumb-item active">Dashboard</span>
 </div>
 {% endblock %}
 
 {% block content %}
-<!-- Welcome Section -->
-<div class="card" style="margin-bottom: 2rem;">
-    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-        <div style="flex: 1;">
-            <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Welcome back, {{ current_user.username }}! 👋</h2>
-            <p style="color: var(--text-muted);">Manage your virtual private servers from one central dashboard.</p>
-        </div>
+
+<style>
+/* ========================================
+   NRB PANEL — DASHBOARD DESIGN
+======================================== */
+.nrb-dashboard {
+    --nrb-bg: #0b1110;
+    --nrb-card: #111b18;
+    --nrb-card2: #15221e;
+    --nrb-border: rgba(148, 163, 184, .13);
+    --nrb-green: #10b981;
+    --nrb-teal: #14b8a6;
+    --nrb-gold: #eabf68;
+    --nrb-muted: #91a39b;
+    color: #ecfdf5;
+    padding-bottom: 2rem;
+}
+
+.nrb-dashboard * {
+    box-sizing: border-box;
+}
+
+.nrb-dashboard a {
+    text-decoration: none;
+}
+
+.nrb-dashboard .nrb-panel-card {
+    background: linear-gradient(145deg, #14211c, #101815);
+    border: 1px solid var(--nrb-border);
+    border-radius: 17px;
+    padding: 22px;
+    min-width: 0;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .12);
+}
+
+.nrb-dashboard .nrb-muted {
+    color: var(--nrb-muted);
+}
+
+.nrb-dashboard .nrb-eyebrow {
+    font-size: .72rem;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--nrb-teal);
+    font-weight: 700;
+}
+
+.nrb-dashboard .nrb-heading {
+    font-size: 1.12rem;
+    font-weight: 700;
+    margin: 0;
+    color: #f0fdf4;
+}
+
+.nrb-dashboard .nrb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 10px;
+    padding: 11px 15px;
+    font-size: .86rem;
+    font-weight: 650;
+    border: 1px solid var(--nrb-border);
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.nrb-dashboard .nrb-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.nrb-dashboard .nrb-btn-primary {
+    color: #052e24;
+    background: linear-gradient(135deg, #34d399, #10b981);
+    border-color: transparent;
+}
+
+.nrb-dashboard .nrb-btn-secondary {
+    color: #d1fae5;
+    background: #17251f;
+}
+
+.nrb-dashboard .nrb-btn-gold {
+    color: #35250b;
+    background: linear-gradient(135deg, #f4d58b, #d9a441);
+    border-color: transparent;
+}
+
+.nrb-dashboard .nrb-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.nrb-dashboard .nrb-top h1 {
+    font-size: clamp(1.55rem, 3vw, 2.1rem);
+    margin: 5px 0 8px;
+    font-weight: 800;
+    letter-spacing: -.8px;
+    color: #f0fdf4;
+}
+
+.nrb-dashboard .nrb-top p {
+    margin: 0;
+    color: var(--nrb-muted);
+    font-size: .92rem;
+}
+
+.nrb-dashboard .nrb-top-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Welcome banner */
+.nrb-dashboard .nrb-welcome {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 22px;
+    background:
+        radial-gradient(ellipse at 85% 15%, rgba(16, 185, 129, .20), transparent 45%),
+        linear-gradient(115deg, #14241d, #10221d 65%, #17251c);
+    border: 1px solid rgba(52, 211, 153, .22);
+    border-radius: 19px;
+    padding: 28px;
+}
+
+.nrb-dashboard .nrb-welcome h2 {
+    font-size: clamp(1.25rem, 3vw, 1.8rem);
+    font-weight: 800;
+    margin: 8px 0;
+    color: #f0fdf4;
+}
+
+.nrb-dashboard .nrb-welcome p {
+    color: #a7bbb0;
+    margin: 0;
+    line-height: 1.7;
+}
+
+.nrb-dashboard .nrb-welcome-art {
+    width: 86px;
+    height: 86px;
+    border-radius: 23px;
+    display: grid;
+    place-items: center;
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, .09);
+    border: 1px solid rgba(52, 211, 153, .25);
+    font-size: 2.4rem;
+    transform: rotate(4deg);
+}
+
+/* Statistics */
+.nrb-dashboard .nrb-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.nrb-dashboard .nrb-stat {
+    position: relative;
+    overflow: hidden;
+    background: var(--nrb-card);
+    border: 1px solid var(--nrb-border);
+    border-radius: 16px;
+    padding: 19px;
+    min-width: 0;
+}
+
+.nrb-dashboard .nrb-stat::after {
+    content: "";
+    position: absolute;
+    right: -30px;
+    bottom: -45px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--stat-color, #10b981);
+    opacity: .07;
+    pointer-events: none;
+}
+
+.nrb-dashboard .nrb-stat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 17px;
+}
+
+.nrb-dashboard .nrb-stat-icon {
+    width: 43px;
+    height: 43px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--stat-color, #10b981) 13%, transparent);
+    color: var(--stat-color, #10b981);
+    font-size: 1.15rem;
+}
+
+.nrb-dashboard .nrb-stat-label {
+    font-size: .82rem;
+    color: var(--nrb-muted);
+}
+
+.nrb-dashboard .nrb-stat-value {
+    font-size: clamp(1.55rem, 3vw, 2rem);
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: -.6px;
+    overflow-wrap: anywhere;
+    color: #f0fdf4;
+}
+
+.nrb-dashboard .nrb-stat-foot {
+    font-size: .77rem;
+    color: var(--nrb-muted);
+    margin-top: 9px;
+    line-height: 1.7;
+}
+
+.nrb-dashboard .nrb-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    font-size: .73rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.nrb-dashboard .nrb-pill-green {
+    background: rgba(16, 185, 129, .12);
+    color: #6ee7b7;
+}
+
+.nrb-dashboard .nrb-pill-yellow {
+    background: rgba(234, 191, 104, .12);
+    color: #fcd68a;
+}
+
+.nrb-dashboard .nrb-pill-gray {
+    background: rgba(148, 163, 184, .12);
+    color: #cbd5e1;
+}
+
+/* Main columns */
+.nrb-dashboard .nrb-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.nrb-dashboard .nrb-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.nrb-dashboard .nrb-card-title {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.nrb-dashboard .nrb-card-title-icon {
+    width: 37px;
+    height: 37px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: rgba(20, 184, 166, .11);
+    color: #5eead4;
+}
+
+.nrb-dashboard .nrb-chart-wrap {
+    position: relative;
+    height: 235px;
+    width: 100%;
+}
+
+/* Quick actions */
+.nrb-dashboard .nrb-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.nrb-dashboard .nrb-action {
+    min-height: 93px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px;
+    border-radius: 13px;
+    border: 1px solid var(--nrb-border);
+    background: #14201b;
+    color: #e5f7ed;
+    transition: .2s ease;
+}
+
+.nrb-dashboard .nrb-action:hover {
+    border-color: rgba(52, 211, 153, .45);
+    background: #192a22;
+    transform: translateY(-2px);
+}
+
+.nrb-dashboard .nrb-action i {
+    font-size: 1.25rem;
+    color: var(--nrb-teal);
+}
+
+.nrb-dashboard .nrb-action span {
+    font-size: .84rem;
+    font-weight: 650;
+}
+
+/* Server table */
+.nrb-dashboard .nrb-table-wrap {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.nrb-dashboard .nrb-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+}
+
+.nrb-dashboard .nrb-table th {
+    color: #81968b;
+    text-transform: uppercase;
+    font-size: .7rem;
+    letter-spacing: 1px;
+    text-align: left;
+    font-weight: 700;
+    padding: 13px 12px;
+    border-bottom: 1px solid var(--nrb-border);
+    white-space: nowrap;
+}
+
+.nrb-dashboard .nrb-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba(148, 163, 184, .09);
+    font-size: .83rem;
+    color: #d8e7de;
+    vertical-align: middle;
+}
+
+.nrb-dashboard .nrb-table tbody tr:hover {
+    background: rgba(16, 185, 129, .035);
+}
+
+.nrb-dashboard .nrb-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.nrb-dashboard .nrb-server-name {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 150px;
+}
+
+.nrb-dashboard .nrb-server-icon {
+    width: 39px;
+    height: 39px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: #18392b;
+    color: #6ee7b7;
+}
+
+.nrb-dashboard .nrb-server-title {
+    font-weight: 700;
+    color: #f0fdf4;
+    overflow-wrap: anywhere;
+}
+
+.nrb-dashboard .nrb-server-id {
+    color: #80948a;
+    font-size: .72rem;
+    margin-top: 4px;
+}
+
+.nrb-dashboard .nrb-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .78rem;
+    font-weight: 650;
+}
+
+.nrb-dashboard .nrb-status-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #64748b;
+}
+
+.nrb-dashboard .nrb-status-dot.running {
+    background: #34d399;
+    box-shadow: 0 0 9px rgba(52, 211, 153, .35);
+}
+
+.nrb-dashboard .nrb-status-dot.suspended {
+    background: #fbbf24;
+}
+
+.nrb-dashboard .nrb-resource-line {
+    white-space: nowrap;
+    line-height: 1.9;
+    color: #b5c7bd;
+    font-size: .77rem;
+}
+
+.nrb-dashboard .nrb-resource-line i {
+    width: 17px;
+    color: #82988c;
+}
+
+.nrb-dashboard .nrb-ip {
+    font-family: monospace;
+    font-size: .79rem;
+    overflow-wrap: anywhere;
+}
+
+.nrb-dashboard .nrb-icon-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 9px;
+    color: #b5d4c3;
+    background: #1a2a22;
+    border: 1px solid var(--nrb-border);
+}
+
+.nrb-dashboard .nrb-icon-btn:hover {
+    color: #6ee7b7;
+    border-color: #2c7655;
+}
+
+.nrb-dashboard .nrb-empty {
+    text-align: center;
+    padding: 45px 15px;
+}
+
+.nrb-dashboard .nrb-empty i {
+    font-size: 2.6rem;
+    color: #507261;
+    margin-bottom: 15px;
+}
+
+.nrb-dashboard .nrb-empty h3 {
+    color: #f0fdf4;
+    margin: 0 0 8px;
+}
+
+.nrb-dashboard .nrb-empty p {
+    color: var(--nrb-muted);
+    font-size: .87rem;
+    line-height: 1.7;
+}
+
+/* Notifications and nodes */
+.nrb-dashboard .nrb-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+}
+
+.nrb-dashboard .nrb-notification {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--nrb-border);
+}
+
+.nrb-dashboard .nrb-notification:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.nrb-dashboard .nrb-notif-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #1b3026;
+    color: #6ee7b7;
+}
+
+.nrb-dashboard .nrb-notif-icon.warning {
+    background: #382e18;
+    color: #fcd34d;
+}
+
+.nrb-dashboard .nrb-notif-icon.danger {
+    background: #3a2020;
+    color: #fca5a5;
+}
+
+.nrb-dashboard .nrb-notif-title {
+    font-size: .85rem;
+    font-weight: 700;
+    color: #e5f7ed;
+}
+
+.nrb-dashboard .nrb-notif-message {
+    color: var(--nrb-muted);
+    font-size: .8rem;
+    margin-top: 5px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.nrb-dashboard .nrb-notif-time {
+    font-size: .72rem;
+    color: #71877b;
+    margin-top: 7px;
+}
+
+.nrb-dashboard .nrb-node {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--nrb-border);
+}
+
+.nrb-dashboard .nrb-node:last-child {
+    border-bottom: 0;
+}
+
+.nrb-dashboard .nrb-node-icon {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    flex-shrink: 0;
+    background: #1a3025;
+    color: #6ee7b7;
+}
+
+.nrb-dashboard .nrb-node-icon.offline {
+    background: #392020;
+    color: #fca5a5;
+}
+
+.nrb-dashboard .nrb-node-name {
+    font-weight: 700;
+    font-size: .86rem;
+    color: #e5f7ed;
+}
+
+.nrb-dashboard .nrb-node-location {
+    font-size: .76rem;
+    color: var(--nrb-muted);
+    margin-top: 4px;
+}
+
+.nrb-dashboard .nrb-node-count {
+    margin-left: auto;
+    text-align: right;
+    font-size: .77rem;
+    color: #b6c9bd;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .nrb-dashboard .nrb-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nrb-dashboard .nrb-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .nrb-dashboard .nrb-panel-card {
+        padding: 17px;
+        border-radius: 14px;
+    }
+
+    .nrb-dashboard .nrb-welcome {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 22px;
+    }
+
+    .nrb-dashboard .nrb-welcome-art {
+        display: none;
+    }
+
+    .nrb-dashboard .nrb-top {
+        align-items: flex-start;
+    }
+
+    .nrb-dashboard .nrb-top-actions {
+        width: 100%;
+    }
+
+    .nrb-dashboard .nrb-top-actions .nrb-btn {
+        flex: 1;
+    }
+
+    .nrb-dashboard .nrb-stats {
+        gap: 10px;
+    }
+
+    .nrb-dashboard .nrb-stat {
+        padding: 14px;
+    }
+
+    .nrb-dashboard .nrb-stat-head {
+        margin-bottom: 12px;
+    }
+
+    .nrb-dashboard .nrb-stat-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .nrb-dashboard .nrb-stat-foot {
+        font-size: .7rem;
+    }
+
+    .nrb-dashboard .nrb-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nrb-dashboard .nrb-chart-wrap {
+        height: 210px;
+    }
+}
+
+@media (max-width: 380px) {
+    .nrb-dashboard .nrb-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .nrb-dashboard .nrb-actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="nrb-dashboard">
+
+    <!-- PAGE HEADING -->
+    <div class="nrb-top">
         <div>
-            <a href="{{ url_for('vps_list') }}" class="btn btn-primary">
+            <div class="nrb-eyebrow">NRB PANEL / CONTROL CENTER</div>
+            <h1>Dashboard</h1>
+            <p>Monitor your servers and manage your infrastructure.</p>
+        </div>
+
+        <div class="nrb-top-actions">
+            <a href="{{ url_for('vps_list') }}"
+               class="nrb-btn nrb-btn-secondary">
                 <i class="fas fa-server"></i>
-                <span>Manage Server</span>
+                My Servers
             </a>
+
             {% if current_user.is_admin %}
-            <a href="{{ url_for('admin_vps_create') }}" class="btn btn-success">
+            <a href="{{ url_for('admin_vps_create') }}"
+               class="nrb-btn nrb-btn-primary">
                 <i class="fas fa-plus"></i>
-                <span>New Server</span>
+                Create Server
             </a>
             {% endif %}
         </div>
     </div>
-</div>
 
-<!-- Stats Grid -->
-<div class="grid grid-4" style="margin-bottom: 2rem;">
-    <div class="stat-card">
-        <div class="stat-icon primary">
+    <!-- WELCOME BANNER -->
+    <section class="nrb-welcome">
+        <div>
+            <div class="nrb-eyebrow">YOUR CLOUD WORKSPACE</div>
+            <h2>Welcome back, {{ current_user.username }}!</h2>
+            <p>
+                Your servers, resources, and management tools are all
+                available in one place.
+            </p>
+            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{{ url_for('vps_list') }}"
+                   class="nrb-btn nrb-btn-primary">
+                    <i class="fas fa-arrow-right"></i>
+                    Open My Servers
+                </a>
+
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin_dashboard') }}"
+                   class="nrb-btn nrb-btn-gold">
+                    <i class="fas fa-shield-alt"></i>
+                    Admin Panel
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="nrb-welcome-art">
             <i class="fas fa-server"></i>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Total Server</div>
-            <div class="stat-value">{{ vps_count }}</div>
-            <div class="stat-change">
-                <span class="badge badge-info">{{ running_count }} running</span>
-                <span class="badge badge-warning">{{ suspended_count }} suspended</span>
-            </div>
-        </div>
-    </div>
+    </section>
 
-    <div class="stat-card">
-        <div class="stat-icon success">
-            <i class="fas fa-microchip"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Total CPU Cores</div>
-            <div class="stat-value">{{ total_cpu }}</div>
-            <div class="stat-change">Across all Server</div>
-        </div>
-    </div>
+    <!-- RESOURCE STATISTICS -->
+    <section class="nrb-stats">
 
-    <div class="stat-card">
-        <div class="stat-icon warning">
-            <i class="fas fa-memory"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Total RAM</div>
-            <div class="stat-value">{{ total_ram }} GB</div>
-            <div class="stat-change">Across all Server</div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon danger">
-            <i class="fas fa-hdd"></i>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Total Storage</div>
-            <div class="stat-value">{{ total_disk }} GB</div>
-            <div class="stat-change">Across all Server</div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions for Mobile -->
-<div class="card" style="margin-bottom: 2rem; display: none;" id="quickActionsMobile">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-bolt"></i>
-            Quick Actions
-        </h3>
-    </div>
-    <div class="grid grid-2" style="gap: 1rem;">
-        <a href="{{ url_for('vps_list') }}" class="btn btn-outline btn-block">
-            <i class="fas fa-server"></i> My Server
-        </a>
-        <a href="{{ url_for('ports_list') }}" class="btn btn-outline btn-block">
-            <i class="fas fa-plug"></i> Ports
-        </a>
-        {% if current_user.is_admin %}
-        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-block">
-            <i class="fas fa-crown"></i> Admin
-        </a>
-        <a href="{{ url_for('admin_vps_create') }}" class="btn btn-primary btn-block">
-            <i class="fas fa-plus"></i> New Server
-        </a>
-        {% endif %}
-    </div>
-</div>
-
-<div class="grid grid-2" style="margin-bottom: 2rem;">
-    <!-- Server Status Chart -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-chart-pie"></i>
-                Server Status Overview
-            </h3>
-        </div>
-        <div style="height: 250px; position: relative;">
-            <canvas id="statusChart"></canvas>
-        </div>
-        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
-            <div><span class="status-dot running" style="display: inline-block; margin-right: 0.5rem;"></span> Running: {{ running_count }}</div>
-            <div><span class="status-dot stopped" style="display: inline-block; margin-right: 0.5rem;"></span> Stopped: {{ stopped_count }}</div>
-            <div><span class="status-dot suspended" style="display: inline-block; margin-right: 0.5rem;"></span> Suspended: {{ suspended_count }}</div>
-        </div>
-    </div>
-
-    <!-- Resource Usage -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-chart-line"></i>
-                Resource Usage
-            </h3>
-        </div>
-        <div style="height: 250px; position: relative;">
-            <canvas id="resourceChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- My Server List -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-server"></i>
-            My Virtual Private Servers
-        </h3>
-        <a href="{{ url_for('vps_list') }}" class="btn btn-sm btn-outline">
-            <span>View All</span>
-            <i class="fas fa-arrow-right"></i>
-        </a>
-    </div>
-
-    {% if vps_list %}
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Resources</th>
-                    <th>IP Address</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for vps in vps_list[:5] %}
-                <tr>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <div class="user-avatar" style="width: 32px; height: 32px; background-color: var(--accent-primary);">
-                                <i class="fas fa-server" style="font-size: 1rem;"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 600;">{{ vps.hostname or vps.container_name }}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">ID: {{ vps.id }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="status-indicator">
-                            <span class="status-dot {% if vps.suspended %}suspended{% elif vps.live_status == 'running' %}running{% else %}stopped{% endif %}"></span>
-                            <span class="status-text">
-                                {% if vps.suspended %}Suspended{% elif vps.live_status == 'running' %}Running{% else %}Stopped{% endif %}
-                            </span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="font-size: 0.875rem;">
-                            <div><i class="fas fa-microchip" style="width: 16px; color: var(--text-muted);"></i> {{ vps.cpu }} Cores</div>
-                            <div><i class="fas fa-memory" style="width: 16px; color: var(--text-muted);"></i> {{ vps.ram }}</div>
-                            <div><i class="fas fa-hdd" style="width: 16px; color: var(--text-muted);"></i> {{ vps.storage }}</div>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="font-family: monospace;">
-                            {% if vps.ip_alias %}
-                            {{ vps.ip_alias }}
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">(alias)</div>
-                            {% elif vps.ip_address %}
-                            {{ vps.ip_address }}
-                            {% else %}
-                            <span class="text-muted">Not assigned</span>
-                            {% endif %}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <a href="{{ url_for('vps_detail', vps_id=vps.id) }}" class="btn btn-sm btn-outline" data-tooltip="Manage">
-                                <i class="fas fa-cog"></i>
-                            </a>
-                            {% if vps.live_status == 'running' and not vps.suspended %}
-                            <a href="{{ url_for('vps_console', vps_id=vps.id) }}" class="btn btn-sm btn-outline" data-tooltip="Console">
-                                <i class="fas fa-terminal"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <i class="fas fa-server"></i>
-        <h3>No Server Yet</h3>
-        <p>You haven't created any virtual private servers yet.</p>
-        {% if current_user.is_admin %}
-        <a href="{{ url_for('admin_vps_create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create Your First Server
-        </a>
-        {% else %}
-        <p class="text-muted">Contact an administrator to create a Server for you.</p>
-        {% endif %}
-    </div>
-    {% endif %}
-</div>
-
-<!-- Recent Notifications -->
-{% if notifications %}
-<div class="card" style="margin-top: 2rem;">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-bell"></i>
-            Recent Notifications
-        </h3>
-        <a href="{{ url_for('notifications') }}" class="btn btn-sm btn-outline">View All</a>
-    </div>
-    <div class="notifications-list">
-        {% for notif in notifications %}
-        <div class="notification-item" onclick="window.location.href='{{ url_for('notifications') }}'">
-            <div class="notification-icon {{ notif.type }}">
-                <i class="fas fa-{% if notif.type == 'success' %}check-circle{% elif notif.type == 'warning' %}exclamation-triangle{% elif notif.type == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
-            </div>
-            <div class="notification-content">
-                <div class="notification-title">{{ notif.title }}</div>
-                <div class="notification-message">{{ notif.message }}</div>
-                <div class="notification-time">{{ notif.created_at|relative_time }}</div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- Node Status (for admins) -->
-{% if current_user.is_admin and node_status %}
-<div class="card" style="margin-top: 2rem;">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="fas fa-network-wired"></i>
-            Node Status
-        </h3>
-    </div>
-    <div class="grid grid-3">
-        {% for node in node_status %}
-        <div class="stat-card" style="padding: 1rem;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div class="stat-icon {% if node.online %}success{% else %}danger{% endif %}" style="width: 40px; height: 40px;">
-                    <i class="fas fa-{% if node.online %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+        <div class="nrb-stat" style="--stat-color:#34d399;">
+            <div class="nrb-stat-head">
+                <div class="nrb-stat-icon">
+                    <i class="fas fa-server"></i>
                 </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 600;">{{ node.name }}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ node.location }}</div>
-                    <div style="margin-top: 0.5rem;">
-                        <span class="badge badge-info">{{ node.vps_count }}/{{ node.total_vps }} Server</span>
+                <span class="nrb-pill nrb-pill-green">
+                    <i class="fas fa-circle" style="font-size:6px;"></i>
+                    {{ running_count }} Running
+                </span>
+            </div>
+            <div class="nrb-stat-label">Total Servers</div>
+            <div class="nrb-stat-value">{{ vps_count }}</div>
+            <div class="nrb-stat-foot">
+                {{ stopped_count }} stopped · {{ suspended_count }} suspended
+            </div>
+        </div>
+
+        <div class="nrb-stat" style="--stat-color:#60a5fa;">
+            <div class="nrb-stat-head">
+                <div class="nrb-stat-icon">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <span class="nrb-pill nrb-pill-gray">CPU</span>
+            </div>
+            <div class="nrb-stat-label">Allocated CPU</div>
+            <div class="nrb-stat-value">{{ total_cpu }}</div>
+            <div class="nrb-stat-foot">Total allocated cores</div>
+        </div>
+
+        <div class="nrb-stat" style="--stat-color:#c084fc;">
+            <div class="nrb-stat-head">
+                <div class="nrb-stat-icon">
+                    <i class="fas fa-memory"></i>
+                </div>
+                <span class="nrb-pill nrb-pill-gray">RAM</span>
+            </div>
+            <div class="nrb-stat-label">Allocated Memory</div>
+            <div class="nrb-stat-value">{{ total_ram }} GB</div>
+            <div class="nrb-stat-foot">Combined server memory</div>
+        </div>
+
+        <div class="nrb-stat" style="--stat-color:#eabf68;">
+            <div class="nrb-stat-head">
+                <div class="nrb-stat-icon">
+                    <i class="fas fa-hdd"></i>
+                </div>
+                <span class="nrb-pill nrb-pill-yellow">Disk</span>
+            </div>
+            <div class="nrb-stat-label">Allocated Storage</div>
+            <div class="nrb-stat-value">{{ total_disk }} GB</div>
+            <div class="nrb-stat-foot">Combined server storage</div>
+        </div>
+
+    </section>
+
+    <!-- CHARTS -->
+    <section class="nrb-main-grid">
+
+        <div class="nrb-panel-card">
+            <div class="nrb-card-header">
+                <div class="nrb-card-title">
+                    <div class="nrb-card-title-icon">
+                        <i class="fas fa-chart-doughnut"></i>
+                    </div>
+                    <div>
+                        <h3 class="nrb-heading">Server Overview</h3>
+                        <div class="nrb-muted" style="font-size:.77rem; margin-top:5px;">
+                            Distribution by server status
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nrb-chart-wrap">
+                <canvas id="nrbStatusChart"></canvas>
+            </div>
+
+            <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:18px;">
+                <span class="nrb-muted" style="font-size:.79rem;">
+                    <i class="fas fa-circle" style="color:#34d399;font-size:8px;"></i>
+                    Running {{ running_count }}
+                </span>
+                <span class="nrb-muted" style="font-size:.79rem;">
+                    <i class="fas fa-circle" style="color:#64748b;font-size:8px;"></i>
+                    Stopped {{ stopped_count }}
+                </span>
+                <span class="nrb-muted" style="font-size:.79rem;">
+                    <i class="fas fa-circle" style="color:#fbbf24;font-size:8px;"></i>
+                    Suspended {{ suspended_count }}
+                </span>
+            </div>
+        </div>
+
+        <div class="nrb-panel-card">
+            <div class="nrb-card-header">
+                <div class="nrb-card-title">
+                    <div class="nrb-card-title-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div>
+                        <h3 class="nrb-heading">Resource Allocation</h3>
+                        <div class="nrb-muted" style="font-size:.77rem; margin-top:5px;">
+                            Total allocated resources
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nrb-chart-wrap">
+                <canvas id="nrbResourceChart"></canvas>
+            </div>
+
+            <p class="nrb-muted" style="font-size:.75rem; margin:14px 0 0;">
+                CPU is measured in cores. RAM and storage are measured in GB.
+            </p>
+        </div>
+
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <section class="nrb-panel-card" style="margin-bottom:22px;">
+        <div class="nrb-card-header">
+            <div class="nrb-card-title">
+                <div class="nrb-card-title-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div>
+                    <h3 class="nrb-heading">Quick Actions</h3>
+                    <div class="nrb-muted" style="font-size:.77rem;margin-top:5px;">
+                        Jump directly to your management tools
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
-    </div>
+
+        <div class="nrb-actions-grid">
+            <a href="{{ url_for('vps_list') }}" class="nrb-action">
+                <i class="fas fa-server"></i>
+                <span>My Servers <i class="fas fa-arrow-right" style="font-size:.7rem;float:right;"></i></span>
+            </a>
+
+            <a href="{{ url_for('ports_list') }}" class="nrb-action">
+                <i class="fas fa-network-wired"></i>
+                <span>Port Management <i class="fas fa-arrow-right" style="font-size:.7rem;float:right;"></i></span>
+            </a>
+
+            <a href="{{ url_for('notifications') }}" class="nrb-action">
+                <i class="fas fa-bell"></i>
+                <span>Notifications <i class="fas fa-arrow-right" style="font-size:.7rem;float:right;"></i></span>
+            </a>
+
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_dashboard') }}" class="nrb-action">
+                <i class="fas fa-shield-alt"></i>
+                <span>Administration <i class="fas fa-arrow-right" style="font-size:.7rem;float:right;"></i></span>
+            </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- SERVER LIST -->
+    <section class="nrb-panel-card">
+        <div class="nrb-card-header">
+            <div class="nrb-card-title">
+                <div class="nrb-card-title-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <div>
+                    <h3 class="nrb-heading">Your Virtual Servers</h3>
+                    <div class="nrb-muted" style="font-size:.77rem;margin-top:5px;">
+                        Your five most recent servers
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('vps_list') }}"
+               class="nrb-btn nrb-btn-secondary"
+               style="padding:9px 12px;font-size:.78rem;">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        {% if vps_list %}
+        <div class="nrb-table-wrap">
+            <table class="nrb-table">
+                <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Status</th>
+                        <th>Resources</th>
+                        <th>IP Address</th>
+                        <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vps in vps_list[:5] %}
+                    <tr>
+                        <td>
+                            <div class="nrb-server-name">
+                                <div class="nrb-server-icon">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div>
+                                    <div class="nrb-server-title">
+                                        {{ vps.hostname or vps.container_name }}
+                                    </div>
+                                    <div class="nrb-server-id">
+                                        Server ID: {{ vps.id }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if vps.suspended %}
+                            <span class="nrb-status">
+                                <span class="nrb-status-dot suspended"></span>
+                                Suspended
+                            </span>
+                            {% elif vps.live_status == 'running' %}
+                            <span class="nrb-status">
+                                <span class="nrb-status-dot running"></span>
+                                Running
+                            </span>
+                            {% else %}
+                            <span class="nrb-status">
+                                <span class="nrb-status-dot"></span>
+                                Stopped
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="nrb-resource-line">
+                                <div><i class="fas fa-microchip"></i>{{ vps.cpu }} cores</div>
+                                <div><i class="fas fa-memory"></i>{{ vps.ram }}</div>
+                                <div><i class="fas fa-hdd"></i>{{ vps.storage }}</div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="nrb-ip">
+                                {% if vps.ip_alias %}
+                                    {{ vps.ip_alias }}
+                                    <div class="nrb-muted" style="font-size:.68rem;margin-top:4px;">
+                                        Alias
+                                    </div>
+                                {% elif vps.ip_address %}
+                                    {{ vps.ip_address }}
+                                {% else %}
+                                    <span class="nrb-muted">Not assigned</span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div style="display:flex;gap:7px;">
+                                <a href="{{ url_for('vps_detail', vps_id=vps.id) }}"
+                                   class="nrb-icon-btn"
+                                   title="Manage server"
+                                   aria-label="Manage server">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+
+                                {% if vps.live_status == 'running' and not vps.suspended %}
+                                <a href="{{ url_for('vps_console', vps_id=vps.id) }}"
+                                   class="nrb-icon-btn"
+                                   title="Open console"
+                                   aria-label="Open console">
+                                    <i class="fas fa-terminal"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="nrb-empty">
+            <i class="fas fa-cloud"></i>
+            <h3>No servers yet</h3>
+            <p>
+                Your server list is empty. Once a VPS is created,
+                it will appear here.
+            </p>
+
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_vps_create') }}"
+               class="nrb-btn nrb-btn-primary">
+                <i class="fas fa-plus"></i>
+                Create Your First Server
+            </a>
+            {% else %}
+            <p>Contact an administrator to request a server.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- NOTIFICATIONS AND NODE STATUS -->
+    <section class="nrb-bottom-grid">
+
+        {% if notifications %}
+        <div class="nrb-panel-card">
+            <div class="nrb-card-header">
+                <div class="nrb-card-title">
+                    <div class="nrb-card-title-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="nrb-heading">Recent Notifications</h3>
+                </div>
+
+                <a href="{{ url_for('notifications') }}"
+                   class="nrb-muted"
+                   style="font-size:.78rem;">
+                    View all
+                </a>
+            </div>
+
+            {% for notif in notifications[:5] %}
+            <div class="nrb-notification">
+                <div class="nrb-notif-icon {{ notif.type }}">
+                    {% if notif.type == 'success' %}
+                    <i class="fas fa-check-circle"></i>
+                    {% elif notif.type == 'warning' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {% elif notif.type == 'danger' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle"></i>
+                    {% endif %}
+                </div>
+
+                <div style="flex:1;min-width:0;">
+                    <div class="nrb-notif-title">{{ notif.title }}</div>
+                    <div class="nrb-notif-message">{{ notif.message }}</div>
+                    <div class="nrb-notif-time">
+                        {{ notif.created_at|relative_time }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if current_user.is_admin and node_status %}
+        <div class="nrb-panel-card">
+            <div class="nrb-card-header">
+                <div class="nrb-card-title">
+                    <div class="nrb-card-title-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="nrb-heading">Infrastructure Nodes</h3>
+                </div>
+            </div>
+
+            {% for node in node_status %}
+            <div class="nrb-node">
+                <div class="nrb-node-icon {% if not node.online %}offline{% endif %}">
+                    {% if node.online %}
+                    <i class="fas fa-check-circle"></i>
+                    {% else %}
+                    <i class="fas fa-exclamation-circle"></i>
+                    {% endif %}
+                </div>
+
+                <div style="min-width:0;">
+                    <div class="nrb-node-name">{{ node.name }}</div>
+                    <div class="nrb-node-location">{{ node.location }}</div>
+                    <div style="margin-top:7px;">
+                        {% if node.online %}
+                        <span class="nrb-pill nrb-pill-green">Online</span>
+                        {% else %}
+                        <span class="nrb-pill nrb-pill-yellow">Offline</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="nrb-node-count">
+                    <div style="font-weight:800;">
+                        {{ node.vps_count }}/{{ node.total_vps }}
+                    </div>
+                    <div class="nrb-muted" style="font-size:.69rem;margin-top:4px;">
+                        Servers
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </section>
+
 </div>
-{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Show quick actions on mobile
-        if (window.innerWidth <= 768) {
-            document.getElementById('quickActionsMobile').style.display = 'block';
-        }
+{{ super() }}
 
-        // Status Chart
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        new Chart(statusCtx, {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const statusCanvas = document.getElementById('nrbStatusChart');
+    const resourceCanvas = document.getElementById('nrbResourceChart');
+
+    // Avoid errors if the chart library or canvas is unavailable.
+    if (typeof Chart === 'undefined') {
+        console.error('NRB Dashboard: Chart.js is not loaded.');
+        return;
+    }
+
+    const chartText = '#a3b7ab';
+    const chartGrid = 'rgba(148, 163, 184, 0.10)';
+
+    if (statusCanvas) {
+        new Chart(statusCanvas, {
             type: 'doughnut',
             data: {
                 labels: ['Running', 'Stopped', 'Suspended'],
                 datasets: [{
-                    data: [{{ running_count }}, {{ stopped_count }}, {{ suspended_count }}],
-                    backgroundColor: ['#10b981', '#6c757d', '#f59e0b'],
-                    borderColor: 'transparent',
-                    borderWidth: 0
+                    data: [
+                        {{ running_count|default(0)|int }},
+                        {{ stopped_count|default(0)|int }},
+                        {{ suspended_count|default(0)|int }}
+                    ],
+                    backgroundColor: ['#34d399', '#64748b', '#fbbf24'],
+                    borderColor: '#111b18',
+                    borderWidth: 5,
+                    hoverOffset: 7
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '70%',
+                cutout: '72%',
                 plugins: {
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0b1110',
+                        titleColor: '#ecfdf5',
+                        bodyColor: '#d1fae5',
+                        borderColor: 'rgba(52,211,153,.25)',
+                        borderWidth: 1,
+                        padding: 12
                     }
                 }
             }
         });
+    }
 
-        // Resource Chart
-        const resourceCtx = document.getElementById('resourceChart').getContext('2d');
-        new Chart(resourceCtx, {
+    if (resourceCanvas) {
+        new Chart(resourceCanvas, {
             type: 'bar',
             data: {
-                labels: ['CPU', 'RAM', 'Storage'],
+                labels: ['CPU Cores', 'RAM (GB)', 'Storage (GB)'],
                 datasets: [{
-                    label: 'Total Allocated',
-                    data: [{{ total_cpu }}, {{ total_ram }}, {{ total_disk }}],
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 6
+                    label: 'Allocated Resources',
+                    data: [
+                        {{ total_cpu|default(0)|float }},
+                        {{ total_ram|default(0)|float }},
+                        {{ total_disk|default(0)|float }}
+                    ],
+                    backgroundColor: [
+                        'rgba(96,165,250,.85)',
+                        'rgba(192,132,252,.85)',
+                        'rgba(234,191,104,.85)'
+                    ],
+                    borderRadius: 7,
+                    borderSkipped: false,
+                    maxBarThickness: 45
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#0b1110',
+                        titleColor: '#ecfdf5',
+                        bodyColor: '#d1fae5',
+                        padding: 12
                     }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: chartText,
+                            font: { size: 10 }
+                        },
+                        border: { display: false }
+                    },
                     y: {
                         beginAtZero: true,
-                        grid: {
-                            color: '#2a2e34'
-                        },
+                        grid: { color: chartGrid },
                         ticks: {
-                            callback: function(value) {
-                                return value + (this.chart.data.labels[0] === 'CPU' ? ' cores' : ' GB');
-                            }
-                        }
+                            color: chartText,
+                            precision: 0
+                        },
+                        border: { display: false }
                     }
                 }
             }
         });
-    });
+    }
+});
 </script>
 {% endblock %}
