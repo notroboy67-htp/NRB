@@ -2,213 +2,744 @@
 {% extends "base.html" %}
 
 {% block title %}Create VPS | NRB Panel{% endblock %}
+{% block header_title %}Create VPS{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="mb-1">Create VPS</h2>
-      <p class="text-secondary mb-0">Deploy a virtual machine using NRB Panel.</p>
-    </div>
-    <a href="{{ url_for('admin_vps') }}" class="btn btn-outline-secondary">
-      Back to VPS List
-    </a>
+<style>
+:root {
+  --nrb-bg: #080d12;
+  --nrb-card: #101820;
+  --nrb-card2: #141f29;
+  --nrb-border: rgba(148,163,184,.16);
+  --nrb-text: #edf5f3;
+  --nrb-muted: #91a4ad;
+  --nrb-green: #19d69b;
+  --nrb-teal: #17b8b0;
+  --nrb-gold: #e4bd68;
+}
+
+.create-vps {
+  color: var(--nrb-text);
+  padding: 8px 0 35px;
+}
+
+.create-vps * { box-sizing: border-box; }
+
+.create-vps .hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--nrb-border);
+  border-radius: 22px;
+  padding: 28px;
+  margin-bottom: 24px;
+  background:
+    radial-gradient(ellipse at 90% 10%, rgba(25,214,155,.15), transparent 38%),
+    linear-gradient(130deg,#111e26,#0b1219 65%);
+}
+
+.create-vps .eyebrow {
+  color: var(--nrb-green);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+.create-vps .hero h2 {
+  font-size: clamp(25px,4vw,36px);
+  font-weight: 800;
+  letter-spacing: -.8px;
+  margin: 10px 0;
+}
+
+.create-vps .muted { color: var(--nrb-muted); }
+
+.create-vps .hero-icon {
+  position: absolute;
+  right: 34px;
+  top: 25px;
+  font-size: 70px;
+  opacity: .12;
+}
+
+.create-vps .layout {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 320px;
+  gap: 22px;
+  align-items: start;
+}
+
+.create-vps .panel {
+  background: var(--nrb-card);
+  border: 1px solid var(--nrb-border);
+  border-radius: 18px;
+  padding: 23px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+
+.create-vps .section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 19px;
+}
+
+.create-vps .section-number {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(25,214,155,.1);
+  color: var(--nrb-green);
+  font-weight: 800;
+  border: 1px solid rgba(25,214,155,.2);
+  flex-shrink: 0;
+}
+
+.create-vps .section-heading h3 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 750;
+}
+
+.create-vps .section-heading p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--nrb-muted);
+}
+
+.create-vps .os-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 12px;
+}
+
+.create-vps .os-option { position: relative; }
+
+.create-vps .os-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.create-vps .os-card {
+  min-height: 91px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--nrb-border);
+  border-radius: 14px;
+  background: #0c141b;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.create-vps .os-card:hover {
+  border-color: rgba(25,214,155,.5);
+  transform: translateY(-2px);
+}
+
+.create-vps .os-option input:checked + .os-card {
+  border-color: var(--nrb-green);
+  background: rgba(25,214,155,.075);
+  box-shadow: inset 0 0 0 1px rgba(25,214,155,.15);
+}
+
+.create-vps .os-option input:focus-visible + .os-card {
+  outline: 2px solid var(--nrb-green);
+  outline-offset: 3px;
+}
+
+.create-vps .os-logo {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 12px;
+  background: #1c2a31;
+  color: var(--nrb-gold);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.create-vps .os-name { font-weight: 750; font-size: 13px; }
+.create-vps .os-desc { color: var(--nrb-muted); font-size: 11px; margin-top: 5px; }
+
+.create-vps .form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #c7d6da;
+  margin-bottom: 8px;
+}
+
+.create-vps .field { margin-bottom: 17px; min-width: 0; }
+
+.create-vps .form-control,
+.create-vps .form-select,
+.create-vps input[type="number"],
+.create-vps input[type="text"] {
+  width: 100%;
+  min-height: 45px;
+  color: var(--nrb-text);
+  background: #0b131a;
+  border: 1px solid var(--nrb-border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  outline: none;
+}
+
+.create-vps .form-control:focus,
+.create-vps .form-select:focus,
+.create-vps input:focus {
+  border-color: var(--nrb-green);
+  box-shadow: 0 0 0 3px rgba(25,214,155,.09);
+}
+
+.create-vps option { background: #101820; }
+
+.create-vps .field-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 15px;
+}
+
+.create-vps .resource-card {
+  background: #0b131a;
+  border: 1px solid var(--nrb-border);
+  border-radius: 13px;
+  padding: 14px;
+}
+
+.create-vps .resource-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+
+.create-vps .resource-label {
+  color: var(--nrb-muted);
+  font-size: 12px;
+}
+
+.create-vps .resource-value {
+  color: var(--nrb-green);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.create-vps input[type="range"] {
+  width: 100%;
+  accent-color: var(--nrb-green);
+  cursor: pointer;
+}
+
+.create-vps .range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--nrb-muted);
+  margin-top: 5px;
+}
+
+.create-vps .stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.create-vps .stepper button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--nrb-border);
+  border-radius: 8px;
+  color: var(--nrb-green);
+  background: #15232b;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.create-vps .stepper button:hover { border-color: var(--nrb-green); }
+
+.create-vps .stepper input {
+  min-width: 0;
+  width: 65px;
+  text-align: center;
+  padding: 5px;
+  min-height: 32px;
+}
+
+.create-vps .summary {
+  position: sticky;
+  top: 20px;
+  background: linear-gradient(155deg,#12211f,#101820 55%);
+}
+
+.create-vps .summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.create-vps .summary-title h3 { font-size: 16px; margin: 0; }
+
+.create-vps .live-pill {
+  font-size: 10px;
+  color: var(--nrb-green);
+  border: 1px solid rgba(25,214,155,.25);
+  background: rgba(25,214,155,.08);
+  padding: 5px 8px;
+  border-radius: 20px;
+}
+
+.create-vps .summary-os {
+  padding: 15px;
+  background: rgba(5,10,14,.35);
+  border: 1px solid var(--nrb-border);
+  border-radius: 13px;
+  margin-bottom: 15px;
+}
+
+.create-vps .summary-os strong { display: block; margin-top: 7px; }
+
+.create-vps .summary-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--nrb-border);
+  font-size: 12px;
+}
+
+.create-vps .summary-line span { color: var(--nrb-muted); }
+.create-vps .summary-line strong { text-align: right; overflow-wrap: anywhere; }
+
+.create-vps .network-note {
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 11px;
+  background: rgba(23,184,176,.07);
+  border: 1px solid rgba(23,184,176,.18);
+  font-size: 11px;
+  line-height: 1.7;
+  color: #a9dcd7;
+}
+
+.create-vps .deploy-btn {
+  width: 100%;
+  min-height: 49px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(100deg,#19d69b,#17b8b0);
+  color: #06130f;
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.create-vps .deploy-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.create-vps .deploy-btn:disabled {
+  opacity: .55;
+  cursor: wait;
+  transform: none;
+}
+
+.create-vps .security-note {
+  text-align: center;
+  color: var(--nrb-muted);
+  font-size: 10px;
+  line-height: 1.6;
+  margin-top: 13px;
+}
+
+.create-vps .progress-panel {
+  border: 1px solid rgba(25,214,155,.24);
+  background: #0e191d;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.create-vps .progress-track {
+  height: 6px;
+  background: #233039;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 17px 0;
+}
+
+.create-vps .progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,var(--nrb-green),var(--nrb-teal));
+  transition: width .4s ease;
+}
+
+.create-vps .stage-list {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+}
+
+.create-vps .stage {
+  border: 1px solid var(--nrb-border);
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  color: var(--nrb-muted);
+}
+
+.create-vps .stage.active {
+  border-color: rgba(25,214,155,.4);
+  color: var(--nrb-green);
+}
+
+.create-vps .stage.done { color: var(--nrb-green); }
+
+.create-vps .hidden { display: none !important; }
+
+@media(max-width: 1000px) {
+  .create-vps .layout { grid-template-columns: minmax(0,1fr) 280px; }
+  .create-vps .panel { padding: 18px; }
+}
+
+@media(max-width: 760px) {
+  .create-vps .layout { grid-template-columns: 1fr; }
+  .create-vps .summary { position: static; }
+  .create-vps .hero { padding: 22px; }
+  .create-vps .hero-icon { right: 15px; font-size: 45px; }
+}
+
+@media(max-width: 450px) {
+  .create-vps .os-grid,
+  .create-vps .field-grid { grid-template-columns: 1fr; }
+  .create-vps .stage-list { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="create-vps">
+  <div class="hero">
+    <div class="hero-icon" aria-hidden="true">◈</div>
+    <div class="eyebrow">NRB CLOUD INFRASTRUCTURE</div>
+    <h2>Deploy a New VPS</h2>
+    <p class="muted mb-0">
+      Configure your resources, choose an operating system, and deploy your virtual server.
+    </p>
   </div>
 
-  <div id="errorBox" class="alert alert-danger d-none" role="alert"></div>
-  <div id="successBox" class="alert alert-success d-none" role="alert"></div>
+  <div id="nrbError" class="alert alert-danger hidden" role="alert"></div>
+  <div id="nrbSuccess" class="alert alert-success hidden" role="status"></div>
 
-  <div class="card shadow-sm">
-    <div class="card-body p-4">
-      <form id="createVpsForm">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="user_id" class="form-label">VPS Owner</label>
-            <select class="form-select" id="user_id" name="user_id" required>
-              <option value="">Select user</option>
-              {% for user in users %}
-              <option value="{{ user.id }}">
-                {{ user.username if user.username is defined else user.id }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
+  <div id="deploymentProgress" class="progress-panel hidden" aria-live="polite">
+    <div class="d-flex justify-content-between align-items-center gap-3">
+      <div>
+        <strong id="progressTitle">Preparing deployment</strong>
+        <div id="progressDescription" class="muted small mt-1">
+          Sending your configuration to NRB Panel.
+        </div>
+      </div>
+      <strong id="progressPercent" style="color:var(--nrb-green)">0%</strong>
+    </div>
+    <div class="progress-track">
+      <div id="progressFill" class="progress-fill"></div>
+    </div>
+    <div class="stage-list">
+      <div class="stage active" id="stage1">01 · Validate configuration</div>
+      <div class="stage" id="stage2">02 · Provision virtual machine</div>
+      <div class="stage" id="stage3">03 · Confirm server status</div>
+    </div>
+  </div>
 
-          <div class="col-md-6">
-            <label for="node_id" class="form-label">Node</label>
-            <select class="form-select" id="node_id" name="node_id" required>
-              <option value="">Select node</option>
-              {% for node in nodes %}
-              <option value="{{ node.id }}">
-                {{ node.name if node.name is defined else node.id }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="col-12">
-            <label for="hostname" class="form-label">Hostname</label>
-            <input
-              class="form-control"
-              id="hostname"
-              name="hostname"
-              type="text"
-              minlength="2"
-              maxlength="40"
-              pattern="[A-Za-z][A-Za-z0-9_-]*"
-              placeholder="nrb-vps-01"
-              required
-            >
-            <div class="form-text">
-              Start with a letter; use letters, numbers, underscores or hyphens.
+  <form id="nrbCreateForm">
+    <div class="layout">
+      <div>
+        <section class="panel">
+          <div class="section-heading">
+            <div class="section-number">01</div>
+            <div>
+              <h3>Operating System</h3>
+              <p>Select an OS available on your NRB node.</p>
             </div>
           </div>
 
-          <div class="col-md-6">
-            <label for="os_version" class="form-label">Operating System</label>
-            <select class="form-select" id="os_version" name="os_version" required>
-              <option value="">Select operating system</option>
-              {% for os in os_options %}
-              <option value="{{ os.value }}">{{ os.label }}</option>
-              {% endfor %}
-            </select>
+          <div class="os-grid">
+            {% for os in os_options %}
+            <label class="os-option">
+              <input
+                type="radio"
+                name="os_version"
+                value="{{ os.value }}"
+                data-label="{{ os.label }}"
+                required
+                {% if loop.first %}checked{% endif %}
+              >
+              <span class="os-card">
+                <span class="os-logo" aria-hidden="true">
+                  {% if 'ubuntu' in (os.label|string)|lower %}◉
+                  {% elif 'debian' in (os.label|string)|lower %}◆
+                  {% elif 'rocky' in (os.label|string)|lower %}⬡
+                  {% else %}▣{% endif %}
+                </span>
+                <span>
+                  <span class="os-name">{{ os.label }}</span>
+                  <span class="os-desc">64-bit virtual machine</span>
+                </span>
+              </span>
+            </label>
+            {% else %}
+            <div class="muted">
+              No operating systems are configured. Add supported OS options in the NRB backend.
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div class="section-number">02</div>
+            <div>
+              <h3>Compute Resources</h3>
+              <p>Choose the resources for your workload.</p>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label for="cpu" class="form-label">CPU Cores</label>
-            <input class="form-control" id="cpu" name="cpu"
-                   type="number" min="1" max="64" value="2" required>
+          <div class="field-grid">
+            <div class="resource-card">
+              <div class="resource-top">
+                <div>
+                  <div class="resource-label">CPU Processing</div>
+                  <div class="resource-value"><span id="cpuDisplay">4</span> vCPU</div>
+                </div>
+                <span aria-hidden="true">▦</span>
+              </div>
+              <input id="cpuRange" type="range" min="1" max="16" value="4">
+              <div class="range-labels"><span>1 core</span><span>16 cores</span></div>
+            </div>
+
+            <div class="resource-card">
+              <div class="resource-top">
+                <div>
+                  <div class="resource-label">Memory Allocation</div>
+                  <div class="resource-value"><span id="ramDisplay">4</span> GB</div>
+                </div>
+                <span aria-hidden="true">▤</span>
+              </div>
+              <input id="ramRange" type="range" min="1" max="32" value="4">
+              <div class="range-labels"><span>1 GB</span><span>32 GB</span></div>
+            </div>
           </div>
 
-          <div class="col-md-6">
-            <label for="ram" class="form-label">RAM (GB)</label>
-            <input class="form-control" id="ram" name="ram"
-                   type="number" min="1" max="128" value="2" required>
+          <div class="resource-card mt-3">
+            <div class="resource-top">
+              <div>
+                <div class="resource-label">Virtual Disk Storage</div>
+                <div class="resource-value"><span id="diskDisplay">50</span> GB</div>
+              </div>
+              <span aria-hidden="true">▱</span>
+            </div>
+            <input id="diskRange" type="range" min="10" max="200" step="10" value="50">
+            <div class="range-labels"><span>10 GB</span><span>200 GB</span></div>
           </div>
 
-          <div class="col-md-6">
-            <label for="disk" class="form-label">Disk (GB)</label>
-            <input class="form-control" id="disk" name="disk"
-                   type="number" min="5" max="2000" value="20" required>
+          <p class="muted small mt-3 mb-0">
+            Available resources depend on your node capacity and server-side limits.
+          </p>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div class="section-number">03</div>
+            <div>
+              <h3>Server Configuration</h3>
+              <p>Assign an owner, node, and hostname.</p>
+            </div>
           </div>
 
-          <div class="col-12">
-            <button class="btn btn-success w-100" id="createBtn" type="submit">
-              Create VPS
-            </button>
+          <div class="field">
+            <label for="hostname" class="form-label">Hostname</label>
+            <input class="form-control" id="hostname" name="hostname"
+              type="text" minlength="2" maxlength="40"
+              pattern="[A-Za-z][A-Za-z0-9_-]*"
+              placeholder="nrb-server-01" required>
+            <div class="muted small mt-2">Start with a letter; letters, numbers, _ and - are supported.</div>
           </div>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <div id="creationProgress" class="card mt-4 d-none">
-    <div class="card-body text-center p-4">
-      <div class="spinner-border text-success mb-3"
-           role="status" aria-label="Creating VPS"></div>
-      <h5 id="progressTitle">Preparing your VPS</h5>
-      <p id="progressText" class="text-secondary mb-0">
-        Sending creation request to NRB Panel...
-      </p>
-      <div class="progress mt-3" role="progressbar"
-           aria-label="Creation progress">
-        <div id="progressBar"
-             class="progress-bar progress-bar-striped progress-bar-animated"
-             style="width: 10%"></div>
+          <div class="field-grid">
+            <div class="field mb-0">
+              <label for="user_id" class="form-label">VPS Owner</label>
+              <select class="form-select" id="user_id" name="user_id" required>
+                <option value="">Select user</option>
+                {% for user in users %}
+                <option value="{{ user.id }}">
+                  {{ user.username if user.username is defined else user.id }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field mb-0">
+              <label for="node_id" class="form-label">Compute Node</label>
+              <select class="form-select" id="node_id" name="node_id" required>
+                <option value="">Select node</option>
+                {% for node in nodes %}
+                <option value="{{ node.id }}">
+                  {{ node.name if node.name is defined else node.id }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </section>
       </div>
+
+      <aside class="panel summary">
+        <div class="summary-title">
+          <h3>Deployment Summary</h3>
+          <span class="live-pill">LIVE CONFIG</span>
+        </div>
+
+        <div class="summary-os">
+          <span class="muted small">Selected operating system</span>
+          <strong id="summaryOS">Select an operating system</strong>
+          <span class="muted small">64-bit architecture</span>
+        </div>
+
+        <div class="summary-line">
+          <span>Hostname</span>
+          <strong id="summaryHostname">Not set</strong>
+        </div>
+        <div class="summary-line">
+          <span>CPU cores</span>
+          <strong id="summaryCPU">4 vCPU</strong>
+        </div>
+        <div class="summary-line">
+          <span>Memory</span>
+          <strong id="summaryRAM">4 GB RAM</strong>
+        </div>
+        <div class="summary-line">
+          <span>Storage</span>
+          <strong id="summaryDisk">50 GB</strong>
+        </div>
+        <div class="summary-line">
+          <span>Owner</span>
+          <strong id="summaryOwner">Not selected</strong>
+        </div>
+        <div class="summary-line">
+          <span>Compute node</span>
+          <strong id="summaryNode">Not selected</strong>
+        </div>
+
+        <div class="network-note">
+          <strong>◈ Virtualization</strong><br>
+          VM provisioning is handled by your configured NRB backend. Network access and IP assignment depend on node configuration.
+        </div>
+
+        <button class="deploy-btn" type="submit" id="deployButton">
+          Deploy VPS <span aria-hidden="true"> →</span>
+        </button>
+
+        <div class="security-note">
+          Authorized administrators only.<br>
+          Resources and availability are verified by the backend.
+        </div>
+      </aside>
     </div>
-  </div>
+  </form>
 </div>
 
 <script>
 (() => {
-  const form = document.getElementById("createVpsForm");
-  const button = document.getElementById("createBtn");
-  const progress = document.getElementById("creationProgress");
-  const progressTitle = document.getElementById("progressTitle");
-  const progressText = document.getElementById("progressText");
-  const progressBar = document.getElementById("progressBar");
-  const errorBox = document.getElementById("errorBox");
-  const successBox = document.getElementById("successBox");
+  "use strict";
 
-  function showMessage(element, message) {
-    element.textContent = message;
-    element.classList.remove("d-none");
+  const form = document.getElementById("nrbCreateForm");
+  const deployButton = document.getElementById("deployButton");
+  const progressPanel = document.getElementById("deploymentProgress");
+  const errorBox = document.getElementById("nrbError");
+  const successBox = document.getElementById("nrbSuccess");
+
+  const cpuRange = document.getElementById("cpuRange");
+  const ramRange = document.getElementById("ramRange");
+  const diskRange = document.getElementById("diskRange");
+
+  const byId = id => document.getElementById(id);
+
+  function selectedText(select) {
+    return select.selectedIndex > 0
+      ? select.options[select.selectedIndex].text.trim()
+      : "Not selected";
   }
 
-  function setProgress(percent, title, message) {
-    progressBar.style.width = percent + "%";
-    progressTitle.textContent = title;
-    progressText.textContent = message;
+  function updateSummary() {
+    const os = form.querySelector('input[name="os_version"]:checked');
+    byId("cpuDisplay").textContent = cpuRange.value;
+    byId("ramDisplay").textContent = ramRange.value;
+    byId("diskDisplay").textContent = diskRange.value;
+
+    byId("summaryOS").textContent =
+      os ? (os.dataset.label || os.parentElement.innerText.trim()) :
+      "Select an operating system";
+
+    byId("summaryHostname").textContent =
+      form.hostname.value.trim() || "Not set";
+    byId("summaryCPU").textContent = cpuRange.value + " vCPU";
+    byId("summaryRAM").textContent = ramRange.value + " GB RAM";
+    byId("summaryDisk").textContent = diskRange.value + " GB";
+    byId("summaryOwner").textContent = selectedText(form.user_id);
+    byId("summaryNode").textContent = selectedText(form.node_id);
   }
 
-  form.addEventListener("submit", async (event) => {
+  [cpuRange, ramRange, diskRange].forEach(el =>
+    el.addEventListener("input", updateSummary)
+  );
+
+  form.addEventListener("input", updateSummary);
+  form.addEventListener("change", updateSummary);
+  updateSummary();
+
+  function message(box, text) {
+    box.textContent = text;
+    box.classList.remove("hidden");
+  }
+
+  function setStage(step, percent, title, description) {
+    byId("progressTitle").textContent = title;
+    byId("progressDescription").textContent = description;
+    byId("progressPercent").textContent = percent + "%";
+    byId("progressFill").style.width = percent + "%";
+
+    for (let i = 1; i <= 3; i++) {
+      const stage = byId("stage" + i);
+      stage.classList.toggle("active", i === step);
+      stage.classList.toggle("done", i < step);
+    }
+  }
+
+  form.addEventListener("submit", async event => {
     event.preventDefault();
 
-    errorBox.classList.add("d-none");
-    successBox.classList.add("d-none");
+    errorBox.classList.add("hidden");
+    successBox.classList.add("hidden");
 
     if (!form.reportValidity()) return;
 
-    const payload = {
-      user_id: form.user_id.value,
-      node_id: form.node_id.value,
-      hostname: form.hostname.value.trim(),
-      os_version: form.os_version.value,
-      cpu: Number(form.cpu.value),
-      ram: Number(form.ram.value),
-      disk: Number(form.disk.value)
-    };
+    const selectedOS = form.querySelector(
+      'input[name="os_version"]:checked'
+    );
 
-    button.disabled = true;
-    button.textContent = "Creating VPS...";
-    progress.classList.remove("d-none");
-    setProgress(10, "Creating VPS", "Request sent. Waiting for the server...");
-
-    try {
-      const response = await fetch("/admin/vps/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        credentials: "same-origin",
-        body: JSON.stringify(payload)
-      });
-
-      const contentType = response.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
-        throw new Error(
-          response.status === 401 || response.status === 403
-            ? "You are not authorized. Please sign in again."
-            : "The server returned an unexpected response. Check the backend logs."
-        );
-      }
-
-      const result = await response.json();
-
-      if (!response.ok || result.ok === false || result.success === false) {
-        throw new Error(result.error || result.message || "VPS creation failed.");
-      }
-
-      setProgress(100, "VPS creation request succeeded",
-        result.message || "The server confirmed creation.");
-
-      showMessage(successBox,
-        result.message || "VPS created successfully.");
-
-      // Redirect only after the backend confirms success.
-      window.setTimeout(() => {
-        window.location.href = "{{ url_for('admin_vps') }}";
-      }, 1500);
-
-    } catch (error) {
-      setProgress(0, "Creation failed", "The VPS was not confirmed as created.");
-      showMessage(errorBox, error.message || "Unable to create VPS.");
-      button.disabled = false;
-      button.textContent = "Try Again";
+    if (!selectedOS) {
+      message(errorBox, "Please select an operating system.");
+      return;
     }
-  });
-})();
-</script>
-{% endblock %}
+
+    const payload 
