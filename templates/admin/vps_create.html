@@ -1,7 +1,7 @@
+
 {% extends "base.html" %}
 
 {% block title %}Create New Server - {{ panel_name }}{% endblock %}
-
 {% block header_title %}Create New Server{% endblock %}
 
 {% block breadcrumbs %}
@@ -28,7 +28,7 @@
     <form id="createServerForm">
         <div class="grid grid-2">
             <div class="form-group">
-                <label class="form-label">Owner <span style="color: var(--accent-danger);">*</span></label>
+                <label class="form-label">Owner <span style="color:var(--accent-danger)">*</span></label>
                 <select id="user_id" class="form-control" required>
                     <option value="">Select user...</option>
                     {% for user in users %}
@@ -40,12 +40,12 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">Node <span style="color: var(--accent-danger);">*</span></label>
+                <label class="form-label">Node <span style="color:var(--accent-danger)">*</span></label>
                 <select id="node_id" class="form-control" required>
                     <option value="">Select node...</option>
                     {% for node in nodes %}
                     <option value="{{ node.id }}">
-                        {{ node.name }} ({{ node.location }}) - {{ node.used_vps }}/{{ node.total_vps }} Server
+                        {{ node.name }} ({{ node.location }}) - {{ node.used_vps }}/{{ node.total_vps }} Servers
                     </option>
                     {% endfor %}
                 </select>
@@ -54,11 +54,11 @@
             <div class="form-group">
                 <label class="form-label">Hostname</label>
                 <input type="text" id="hostname" class="form-control" placeholder="e.g., my-vps-01">
-                <small style="color: var(--text-muted);">Leave blank for auto-generated name</small>
+                <small style="color:var(--text-muted)">Leave blank for auto-generated name</small>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Operating System <span style="color: var(--accent-danger);">*</span></label>
+                <label class="form-label">Operating System <span style="color:var(--accent-danger)">*</span></label>
                 <select id="os_version" class="form-control" required>
                     {% for os in os_options %}
                     <option value="{{ os.value }}" {% if loop.index == 1 %}selected{% endif %}>
@@ -69,17 +69,17 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">CPU Cores <span style="color: var(--accent-danger);">*</span></label>
+                <label class="form-label">CPU Cores</label>
                 <input type="number" id="cpu" class="form-control" value="2" min="1" max="64" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label">RAM (GB) <span style="color: var(--accent-danger);">*</span></label>
+                <label class="form-label">RAM (GB)</label>
                 <input type="number" id="ram" class="form-control" value="2" min="1" max="128" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label">Disk (GB) <span style="color: var(--accent-danger);">*</span></label>
+                <label class="form-label">Disk (GB)</label>
                 <input type="number" id="disk" class="form-control" value="20" min="5" max="2000" required>
             </div>
 
@@ -94,201 +94,348 @@
             </div>
         </div>
 
-        <!-- Auto-Expiration Settings -->
-        <div style="margin: 1.5rem 0; padding: 1rem; background-color: var(--bg-secondary); border-radius: var(--border-radius-sm); border: 1px solid var(--border-color);">
-            <h4 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-clock"></i>
-                Auto-Expiration Settings
-            </h4>
-            
+        <div style="margin:1.5rem 0;padding:1rem;background:var(--bg-secondary);border-radius:var(--border-radius-sm);border:1px solid var(--border-color)">
+            <h4 style="margin-bottom:1rem"><i class="fas fa-clock"></i> Auto-Expiration Settings</h4>
+
             <div class="form-group">
-                <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <input type="checkbox" id="auto_suspend_enabled" style="width: auto; margin: 0;">
+                <label class="form-label" style="display:flex;align-items:center;gap:.5rem">
+                    <input type="checkbox" id="auto_suspend_enabled" style="width:auto;margin:0">
                     Enable Auto-Suspend on Expiration
                 </label>
-                <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
-                    When enabled, Server will automatically suspend after the specified number of days
-                </small>
+                <small style="color:var(--text-muted)">Automatically suspend the server after the specified number of days.</small>
             </div>
 
-            <div id="expiration-settings" style="display: none; margin-top: 1rem;">
+            <div id="expiration-settings" style="display:none;margin-top:1rem">
                 <div class="grid grid-2">
                     <div class="form-group">
                         <label class="form-label">Expiration Days</label>
                         <input type="number" id="expiration_days" class="form-control" value="30" min="1" max="365">
-                        <small style="color: var(--text-muted);">Number of days until Server expires</small>
                     </div>
-
                     <div class="form-group">
                         <label class="form-label">Expiration Date (Preview)</label>
-                        <input type="text" id="expiration_preview" class="form-control" readonly style="background-color: var(--bg-tertiary);">
-                        <small style="color: var(--text-muted);">Calculated expiration date</small>
+                        <input type="text" id="expiration_preview" class="form-control" readonly>
                     </div>
                 </div>
-
-                <div style="padding: 0.75rem; background-color: var(--bg-tertiary); border-radius: var(--border-radius-sm); border-left: 3px solid var(--accent-warning);">
-                    <div style="display: flex; align-items: start; gap: 0.5rem;">
-                        <i class="fas fa-info-circle" style="color: var(--accent-warning); margin-top: 0.25rem;"></i>
-                        <div>
-                            <strong>How Auto-Expiration Works:</strong>
-                            <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
-                                <li>Server will be automatically suspended after the specified days</li>
-                                <li>User receives warning notification 3 days before expiration</li>
-                                <li>Admin can renew Server at any time to extend the expiration date</li>
-                                <li>Suspended Server can be unsuspended and renewed by admin</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div style="padding:.75rem;background:var(--bg-tertiary);border-radius:var(--border-radius-sm);border-left:3px solid var(--accent-warning)">
+                    <strong><i class="fas fa-info-circle"></i> How Auto-Expiration Works</strong>
+                    <ul style="margin:.5rem 0 0 1rem;padding:0">
+                        <li>Server suspension must be implemented by the backend scheduler.</li>
+                        <li>Notifications require backend notification support.</li>
+                        <li>Admins can renew servers if renewal is supported.</li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Resource Summary -->
-        <div style="margin: 1.5rem 0; padding: 1rem; background-color: var(--bg-tertiary); border-radius: var(--border-radius-sm);">
-            <h4 style="margin-bottom: 1rem;">Resource Summary</h4>
-            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                <div>
-                    <span style="color: var(--text-muted);">Total CPU:</span>
-                    <span id="summary-cpu">2 cores</span>
-                </div>
-                <div>
-                    <span style="color: var(--text-muted);">Total RAM:</span>
-                    <span id="summary-ram">2 GB</span>
-                </div>
-                <div>
-                    <span style="color: var(--text-muted);">Total Storage:</span>
-                    <span id="summary-disk">20 GB</span>
-                </div>
+        <div style="margin:1.5rem 0;padding:1rem;background:var(--bg-tertiary);border-radius:var(--border-radius-sm)">
+            <h4 style="margin-bottom:1rem">Resource Summary</h4>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap">
+                <div><span style="color:var(--text-muted)">Total CPU:</span> <span id="summary-cpu">2 cores</span></div>
+                <div><span style="color:var(--text-muted)">Total RAM:</span> <span id="summary-ram">2 GB</span></div>
+                <div><span style="color:var(--text-muted)">Total Storage:</span> <span id="summary-disk">20 GB</span></div>
             </div>
         </div>
 
-        <!-- Actions -->
-        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <a href="{{ url_for('admin_vps') }}" class="btn btn-outline">
-                Cancel
-            </a>
-            <button type="submit" class="btn btn-primary">
+        <div style="display:flex;gap:1rem;justify-content:flex-end">
+            <a href="{{ url_for('admin_vps') }}" class="btn btn-outline">Cancel</a>
+            <button id="create-server-button" type="submit" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Create Server
             </button>
         </div>
     </form>
 </div>
+
+<!-- Full-screen VPS creation animation -->
+<div id="nrb-overlay" class="nrb-overlay" style="display:none">
+    <div class="nrb-panel">
+        <div class="nrb-brand-icon"><i class="fas fa-server"></i></div>
+        <h2>NRB Panel</h2>
+        <p id="nrb-status">Preparing your VPS...</p>
+
+        <div id="nrb-animation" class="nrb-animation">
+            <div class="nrb-orbit orbit-one"></div>
+            <div class="nrb-orbit orbit-two"></div>
+            <div class="nrb-core"><i class="fas fa-server"></i></div>
+            <span class="nrb-dot dot-one"></span>
+            <span class="nrb-dot dot-two"></span>
+            <span class="nrb-dot dot-three"></span>
+        </div>
+
+        <div class="nrb-progress-info">
+            <span id="nrb-stage">Initializing server</span>
+            <strong id="nrb-percent">0%</strong>
+        </div>
+        <div class="nrb-progress-track">
+            <div id="nrb-progress"></div>
+        </div>
+
+        <div class="nrb-steps">
+            <div class="nrb-step" data-step="0">
+                <span class="step-icon"><i class="fas fa-circle"></i></span>
+                <span>Validating configuration</span>
+                <small>Waiting</small>
+            </div>
+            <div class="nrb-step" data-step="1">
+                <span class="step-icon"><i class="fas fa-circle"></i></span>
+                <span>Preparing resources</span>
+                <small>Waiting</small>
+            </div>
+            <div class="nrb-step" data-step="2">
+                <span class="step-icon"><i class="fas fa-circle"></i></span>
+                <span>Creating server container</span>
+                <small>Waiting</small>
+            </div>
+            <div class="nrb-step" data-step="3">
+                <span class="step-icon"><i class="fas fa-circle"></i></span>
+                <span>Finalizing configuration</span>
+                <small>Waiting</small>
+            </div>
+        </div>
+
+        <div id="nrb-result" style="display:none">
+            <i id="nrb-result-icon" class="fas fa-check-circle"></i>
+            <h3 id="nrb-result-title">VPS created!</h3>
+            <p id="nrb-result-message"></p>
+            <button type="button" id="nrb-result-button">Open Server List</button>
+        </div>
+
+        <p id="nrb-note" class="nrb-note">
+            <i class="fas fa-shield-alt"></i>
+            Please keep this page open while your VPS is being created.
+        </p>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
+<style>
+.nrb-overlay {
+    position:fixed;inset:0;z-index:99999;display:flex;align-items:center;
+    justify-content:center;padding:16px;overflow-y:auto;
+    background:rgba(3,10,8,.97);backdrop-filter:blur(14px);color:#e8fff5;
+    font-family:Inter,Arial,sans-serif
+}
+.nrb-panel {
+    width:100%;max-width:510px;padding:26px;background:#0d1915;
+    border:1px solid #214b3b;border-radius:22px;
+    box-shadow:0 25px 100px #0008;text-align:center;
+    animation:nrb-enter .4s ease-out
+}
+.nrb-brand-icon {
+    width:52px;height:52px;margin:auto;display:grid;place-items:center;
+    border-radius:15px;background:linear-gradient(135deg,#55e6ae,#d5bd70);
+    color:#07150f;font-size:23px
+}
+.nrb-panel h2 {color:#55e6ae;letter-spacing:2px;margin:10px 0 5px}
+.nrb-panel > p {color:#a4c5b6;font-size:13px}
+.nrb-animation {
+    position:relative;width:150px;height:150px;margin:20px auto;
+    display:grid;place-items:center
+}
+.nrb-core {
+    width:68px;height:68px;display:grid;place-items:center;border-radius:20px;
+    background:#153c2d;border:1px solid #55e6ae;color:#55e6ae;font-size:28px;
+    box-shadow:0 0 30px #1c9e6b44;animation:nrb-pulse 1.8s infinite
+}
+.nrb-orbit {
+    position:absolute;width:125px;height:125px;border:2px solid transparent;
+    border-top-color:#55e6ae;border-bottom-color:#c8b16c;border-radius:50%;
+    animation:nrb-spin 2s linear infinite
+}
+.orbit-two {width:100px;height:100px;animation-direction:reverse;animation-duration:1.4s}
+.nrb-dot {position:absolute;width:8px;height:8px;border-radius:50%;background:#55e6ae;box-shadow:0 0 12px #55e6ae}
+.dot-one {top:12px;left:75px}
+.dot-two {right:10px;bottom:38px;background:#d5bd70}
+.dot-three {left:18px;bottom:35px}
+.nrb-progress-info {display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;font-size:13px;color:#c5dcd0}
+#nrb-percent {color:#55e6ae}
+.nrb-progress-track {height:8px;border-radius:20px;overflow:hidden;background:#20352c}
+#nrb-progress {height:100%;width:0;background:linear-gradient(90deg,#24b980,#65efb5,#d5bd70);transition:width .4s}
+.nrb-steps {margin-top:22px;text-align:left}
+.nrb-step {display:flex;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid #1b3027;color:#90aa9e;font-size:12px}
+.nrb-step > span:nth-child(2) {flex:1}
+.step-icon {width:27px;height:27px;display:grid;place-items:center;border-radius:50%;background:#1a2b23;flex-shrink:0}
+.nrb-step small {font-size:10px;color:#789487}
+.nrb-step.active {color:#e4fff1}
+.nrb-step.active .step-icon,.nrb-step.done .step-icon {background:#164631;color:#55e6ae}
+.nrb-step.active small,.nrb-step.done small {color:#55e6ae}
+.nrb-step.done {color:#b8e9d0}
+.nrb-step.failed {color:#ffb4a9}
+.nrb-step.failed .step-icon,.nrb-step.failed small {color:#ff8275}
+#nrb-result {margin-top:22px;padding:18px;border-radius:14px;background:#14271e}
+#nrb-result > i {font-size:35px;color:#55e6ae}
+#nrb-result.error > i {color:#ff8275}
+#nrb-result h3 {color:#e8fff5;margin:12px 0 6px}
+#nrb-result p {color:#a4c5b6;font-size:13px;overflow-wrap:anywhere}
+#nrb-result-button {width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#55e6ae;color:#07150f;font-weight:700;cursor:pointer}
+.nrb-note {margin-top:20px;font-size:11px!important;color:#789487!important;line-height:1.6}
+@keyframes nrb-spin {to{transform:rotate(360deg)}}
+@keyframes nrb-pulse {0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.94);opacity:.75}}
+@keyframes nrb-enter {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){.nrb-panel{padding:20px 15px}.nrb-step{gap:6px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.nrb-overlay *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
 <script>
-    // Update summary
-    document.getElementById('cpu').addEventListener('input', function(e) {
-        document.getElementById('summary-cpu').textContent = e.target.value + ' cores';
-    });
+(() => {
+    const $ = id => document.getElementById(id);
+    const form = $('createServerForm');
+    const overlay = $('nrb-overlay');
+    if (!form || !overlay) return;
 
-    document.getElementById('ram').addEventListener('input', function(e) {
-        document.getElementById('summary-ram').textContent = e.target.value + ' GB';
-    });
+    let busy = false;
+    let succeeded = false;
+    let activeStep = -1;
 
-    document.getElementById('disk').addEventListener('input', function(e) {
-        document.getElementById('summary-disk').textContent = e.target.value + ' GB';
-    });
-
-    // Toggle expiration settings
-    document.getElementById('auto_suspend_enabled').addEventListener('change', function(e) {
-        const expirationSettings = document.getElementById('expiration-settings');
-        if (e.target.checked) {
-            expirationSettings.style.display = 'block';
-            updateExpirationPreview();
-        } else {
-            expirationSettings.style.display = 'none';
-        }
-    });
-
-    // Update expiration preview
-    function updateExpirationPreview() {
-        const days = parseInt(document.getElementById('expiration_days').value) || 30;
-        const now = new Date();
-        const expirationDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
-        
-        const formatted = expirationDate.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+    // Resource summary
+    [['cpu','summary-cpu',' cores'],['ram','summary-ram',' GB'],['disk','summary-disk',' GB']]
+    .forEach(([input,summary,unit]) => {
+        $(input).addEventListener('input', () => {
+            $(summary).textContent = $(input).value + unit;
         });
-        
-        document.getElementById('expiration_preview').value = formatted + ` (${days} days from now)`;
+    });
+
+    // Expiration controls
+    function updateExpirationPreview() {
+        const days = Math.max(1, Number($('expiration_days').value) || 30);
+        const date = new Date(Date.now() + days * 86400000);
+        $('expiration_preview').value = date.toLocaleString() + ' (' + days + ' days)';
     }
 
-    document.getElementById('expiration_days').addEventListener('input', updateExpirationPreview);
+    $('auto_suspend_enabled').addEventListener('change', event => {
+        $('expiration-settings').style.display = event.target.checked ? 'block' : 'none';
+        if (event.target.checked) updateExpirationPreview();
+    });
+    $('expiration_days').addEventListener('input', updateExpirationPreview);
 
-    // Form submission
-    document.getElementById('createServerForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    function progress(value, stage, status) {
+        $('nrb-progress').style.width = value + '%';
+        $('nrb-percent').textContent = value + '%';
+        $('nrb-stage').textContent = stage;
+        $('nrb-status').textContent = status;
+    }
 
-        const user_id = document.getElementById('user_id').value;
-        const node_id = document.getElementById('node_id').value;
-        const hostname = document.getElementById('hostname').value;
-        const os_version = document.getElementById('os_version').value;
-        const cpu = document.getElementById('cpu').value;
-        const ram = document.getElementById('ram').value;
-        const disk = document.getElementById('disk').value;
-        const ip_address = document.getElementById('ip_address').value;
-        const ip_alias = document.getElementById('ip_alias').value;
-        const auto_suspend_enabled = document.getElementById('auto_suspend_enabled').checked;
-        const expiration_days = auto_suspend_enabled ? parseInt(document.getElementById('expiration_days').value) : 0;
+    function step(index, state) {
+        const el = overlay.querySelector('[data-step="' + index + '"]');
+        if (!el) return;
+        el.classList.remove('active','done','failed');
+        el.classList.add(state);
+        el.querySelector('small').textContent =
+            state === 'done' ? 'Completed' :
+            state === 'active' ? 'In progress' : 'Failed';
 
-        if (!user_id || !node_id || !os_version) {
-            showToast('Please fill in all required fields', 'warning');
-            return;
+        const icon = el.querySelector('.step-icon i');
+        icon.className = state === 'done' ? 'fas fa-check' :
+            state === 'active' ? 'fas fa-circle-notch fa-spin' :
+            state === 'failed' ? 'fas fa-times' : 'fas fa-circle';
+    }
+
+    function activate(index) {
+        if (activeStep >= 0 && activeStep < index) step(activeStep,'done');
+        activeStep = index;
+        step(index,'active');
+    }
+
+    function resetAnimation() {
+        activeStep = -1;
+        $('nrb-result').style.display = 'none';
+        $('nrb-result').classList.remove('error');
+        $('nrb-animation').style.display = '';
+        $('nrb-note').style.display = '';
+        overlay.querySelectorAll('.nrb-step').forEach(el => {
+            el.classList.remove('active','done','failed');
+            el.querySelector('small').textContent = 'Waiting';
+            el.querySelector('.step-icon i').className = 'fas fa-circle';
+        });
+        progress(0,'Initializing server','Preparing your VPS...');
+    }
+
+    function showResult(ok, message) {
+        succeeded = ok;
+        $('nrb-animation').style.display = 'none';
+        $('nrb-note').style.display = 'none';
+        $('nrb-result').style.display = 'block';
+        $('nrb-result').classList.toggle('error',!ok);
+        $('nrb-result-icon').className = ok ? 'fas fa-check-circle' : 'fas fa-times-circle';
+        $('nrb-result-title').textContent = ok ? 'VPS Created Successfully!' : 'VPS Creation Failed';
+        $('nrb-result-message').textContent = message;
+        $('nrb-result-button').textContent = ok ? 'Open Server List' : 'Close and Try Again';
+
+        if (ok) {
+            for (let i=0;i<4;i++) step(i,'done');
+            progress(100,'Creation completed','Your server was created successfully!');
+        } else {
+            if (activeStep >= 0) step(activeStep,'failed');
+            $('nrb-status').textContent = 'Server creation failed';
+            $('nrb-stage').textContent = 'Creation unsuccessful';
         }
+    }
 
-        if (auto_suspend_enabled && (!expiration_days || expiration_days < 1)) {
-            showToast('Please enter a valid expiration period (minimum 1 day)', 'warning');
-            return;
-        }
-
-        showLoading();
-
-        try {
-            const response = await fetch('/admin/vps/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: parseInt(user_id),
-                    node_id: parseInt(node_id),
-                    hostname: hostname,
-                    os_version: os_version,
-                    cpu: parseInt(cpu),
-                    ram: parseInt(ram),
-                    disk: parseInt(disk),
-                    ip_address: ip_address || null,
-                    ip_alias: ip_alias || null,
-                    auto_suspend_enabled: auto_suspend_enabled,
-                    expiration_days: expiration_days
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                let message = `Server created successfully: ${result.container_name}`;
-                if (auto_suspend_enabled) {
-                    message += ` (Expires in ${expiration_days} days)`;
-                }
-                showToast(message, 'success');
-                setTimeout(() => {
-                    window.location.href = "{{ url_for('admin_vps') }}";
-                }, 2000);
-            } else {
-                showToast(result.error || 'Failed to create Server', 'danger');
-            }
-        } catch (error) {
-            console.error('Create Server error:', error);
-            showToast('Network error: ' + error.message, 'danger');
-        } finally {
-            hideLoading();
+    $('nrb-result-button').addEventListener('click', () => {
+        if (succeeded) {
+            window.location.href = "{{ url_for('admin_vps') }}";
+        } else {
+            overlay.style.display = 'none';
+            busy = false;
+            $('create-server-button').disabled = false;
         }
     });
-</script>
-{% endblock %}
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (busy || !form.reportValidity()) return;
+
+        const user_id = $('user_id').value;
+        const node_id = $('node_id').value;
+        const hostname = $('hostname').value.trim();
+        const os_version = $('os_version').value;
+        const cpu = Number($('cpu').value);
+        const ram = Number($('ram').value);
+        const disk = Number($('disk').value);
+        const ip_address = $('ip_address').value.trim();
+        const ip_alias = $('ip_alias').value.trim();
+        const auto_suspend_enabled = $('auto_suspend_enabled').checked;
+        const expiration_days = auto_suspend_enabled ? Number($('expiration_days').value) : 0;
+
+        if (!user_id || !node_id || !os_version) {
+            showToast('Please fill in all required fields','warning');
+            return;
+        }
+        if (!Number.isInteger(cpu) || cpu < 1 || cpu > 64 ||
+            !Number.isInteger(ram) || ram < 1 || ram > 128 ||
+            !Number.isInteger(disk) || disk < 5 || disk > 2000) {
+            showToast('Check CPU, RAM and disk limits.','warning');
+            return;
+        }
+        if (auto_suspend_enabled &&
+            (!Number.isInteger(expiration_days) || expiration_days < 1 || expiration_days > 365)) {
+            showToast('Enter expiration days from 1 to 365.','warning');
+            return;
+        }
+
+        busy = true;
+        succeeded = false;
+        $('create-server-button').disabled = true;
+        resetAnimation();
+        overlay.style.display = 'flex';
+
+        try {
+            activate(0);
+            progress(10,'Validating configuration','Checking your server settings...');
+            await new Promise(resolve => setTimeout(resolve,250));
+
+            activate(1);
+            progress(25,'Preparing resources','Preparing CPU, RAM and storage...');
+            await new Promise(resolve => setTimeout(resolve,250));
+
+            activate(2);
+            progress(40,'Creating server container','Provisioning your VPS...');
+
+            const response = await fetch('/admin/vps/create', {
+                method:'POST',
+                headers:{'Content-Type':'application/json','Accept':'application/json'},
+                body:JSON.stringify({
+                    user_id:Number(user_id),
+                    node_id:Number(node_id),
+                    hostname,
+        
